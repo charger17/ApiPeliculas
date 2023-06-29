@@ -1,4 +1,5 @@
-﻿using ApiPeliculas.Models.Dtos;
+﻿using ApiPeliculas.Models;
+using ApiPeliculas.Models.Dtos;
 using ApiPeliculas.Repository.IRepository;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -33,13 +34,13 @@ namespace ApiPeliculas.Controllers
             return Ok(listaPeliculasDto);
         }
 
-        [HttpGet("{GetPelicula:int}", Name = "GetPelicula")]
+        [HttpGet("{peliculaId:int}", Name = "GetPelicula")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetPelicula(int GetPelicula)
+        public IActionResult GetPelicula(int peliculaId)
         {
-            var itemPelicula = _pelRepo.GetPelicula(GetPelicula);
+            var itemPelicula = _pelRepo.GetPelicula(peliculaId);
 
             if (itemPelicula == null)
             {
@@ -49,6 +50,40 @@ namespace ApiPeliculas.Controllers
             var itemPeliculaDto = _mapper.Map<PeliculaDto>(itemPelicula);
 
             return Ok(itemPeliculaDto);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PeliculaDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult CrearPelicula([FromBody] PeliculaDto peliculaDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (peliculaDto is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (_pelRepo.ExistePelicula(peliculaDto.Nombre))
+            {
+                ModelState.AddModelError("Existe", "La pelicula ya existe");
+                return NotFound(ModelState);
+            }
+
+            var pelicula = _mapper.Map<Pelicula>(peliculaDto);
+
+            if (!_pelRepo.CrearPelicula(pelicula))
+            {
+                ModelState.AddModelError("ErrorCreacion", "La pelicula no pudo ser creada");
+                return StatusCode(500, ModelState);
+            }
+
+            return CreatedAtRoute("GetPelicula", new { peliculaId = pelicula.Id }, pelicula);
         }
     }
 }
