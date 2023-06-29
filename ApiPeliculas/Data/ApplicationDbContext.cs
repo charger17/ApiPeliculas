@@ -1,6 +1,18 @@
-﻿namespace ApiPeliculas.Data
+﻿using ApiPeliculas.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace ApiPeliculas.Data
 {
-    public class ApplicationDbContext
+    public class ApplicationDbContext : DbContext
     {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+            
+        }
+
+        //Agregar los modelos aquí
+        public DbSet<Categoria> Categorias { get; set; }
+
+
     }
 }
