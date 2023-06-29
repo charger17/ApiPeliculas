@@ -85,7 +85,7 @@ namespace ApiPeliculas.Controllers
         }
 
         [HttpPatch("{categoriaId:int}", Name = "ActualizarPatchCategoria")]
-        [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(CategoriaDto))]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -106,7 +106,7 @@ namespace ApiPeliculas.Controllers
 
             if (!_ctRepo.ActualizarCategoria(categoria))
             {
-                ModelState.AddModelError("ErrorActualizacion", "La categoria no pudo ser Actualziada");
+                ModelState.AddModelError("ErrorActualizacion", "La categoria no pudo ser actualizada.");
                 return StatusCode(500, ModelState);
             }
 
@@ -114,6 +114,28 @@ namespace ApiPeliculas.Controllers
 
         }
 
+        [HttpDelete("{categoriaId:int}", Name = "BorrarCategoria")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult BorrarCategoria(int categoriaId)
+        {
+            if (! _ctRepo.ExisteCategoria(categoriaId))
+            {
+                return NotFound();
+            }
 
+            var categoria = _ctRepo.GetCategoria(categoriaId);
+
+            if (!_ctRepo.BorrarCategoria(categoria))
+            {
+                ModelState.AddModelError("ErrorEliminacion", "La categoria no pudo ser Eliminada.");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
+        }
     }
 }
