@@ -52,12 +52,12 @@ namespace ApiPeliculas.Repository
 
         public ICollection<Categoria> GetCategorias()
         {
-            throw new NotImplementedException();
+            return _bd.Categorias.OrderBy(c => c.Nombre).ToList();
         }
 
         public bool Guardar()
         {
-            throw new NotImplementedException();
+            return _bd.SaveChanges() >= 0;
         }
     }
 }
