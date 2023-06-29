@@ -85,5 +85,35 @@ namespace ApiPeliculas.Controllers
 
             return CreatedAtRoute("GetPelicula", new { peliculaId = pelicula.Id }, pelicula);
         }
+
+        [HttpPatch("{peliculaId:int}", Name = "ActualizarPatchPelicula")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult ActualizarPatchPelicula(int peliculaId, [FromBody] PeliculaDto peliculaDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (peliculaDto is null || peliculaId != peliculaDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var pelicula = _mapper.Map<Pelicula>(peliculaDto);
+
+            if (!_pelRepo.ActualizarPelicula(pelicula))
+            {
+                ModelState.AddModelError("ErrorActualizacion", "La pelicula no pudo ser actualizada.");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
+        }
     }
 }
