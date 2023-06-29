@@ -59,7 +59,7 @@ namespace ApiPeliculas.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             if (crearCategoriaDto is null)
@@ -83,6 +83,37 @@ namespace ApiPeliculas.Controllers
 
             return CreatedAtRoute("GetCategoria", new { categoriaId = categoria.Id }, categoria);
         }
+
+        [HttpPatch("{categoriaId:int}", Name = "ActualizarPatchCategoria")]
+        [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(CategoriaDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult ActualziarPatchCategoria(int categoriaId, [FromBody] CategoriaDto categoriaDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (categoriaDto is null || categoriaId != categoriaDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var categoria = _mapper.Map<Categoria>(categoriaDto);
+
+            if (!_ctRepo.ActualizarCategoria(categoria))
+            {
+                ModelState.AddModelError("ErrorActualizacion", "La categoria no pudo ser Actualziada");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
+        }
+
 
     }
 }
