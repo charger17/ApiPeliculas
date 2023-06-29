@@ -49,5 +49,40 @@ namespace ApiPeliculas.Controllers
 
             return Ok(itemCategoriaDto);
         }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CategoriaDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult CrearCategoria([FromBody] CrearCategoriaDto crearCategoriaDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            if (crearCategoriaDto is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (_ctRepo.ExisteCategoria(crearCategoriaDto.Nombre))
+            {
+                ModelState.AddModelError("Existe", "La categoria ya existe");
+                return NotFound(ModelState);
+            }
+
+            var categoria = _mapper.Map<Categoria>(crearCategoriaDto);
+
+            if (!_ctRepo.CrearCategoria(categoria))
+            {
+                ModelState.AddModelError("ErrorCreacion", "La categoria no pudo ser creada");
+                return StatusCode(500, ModelState);
+            }
+
+            return CreatedAtRoute("GetCategoria", new { categoriaId = categoria.Id }, categoria);
+        }
+
     }
 }
