@@ -17,6 +17,7 @@ builder.Services.AddAutoMapper(typeof(PeliculasMapper));
 
 //add dependency injection
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IPeliculaRepository, PeliculaRepository>();
 
 // Add services to the container.
 

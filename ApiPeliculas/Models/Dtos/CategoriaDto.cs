@@ -7,7 +7,7 @@ namespace ApiPeliculas.Models.Dtos
         public int Id { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
-        [MaxLength(60, ErrorMessage = "El numero máximo de caracteres es de 100")]
+        [MaxLength(100, ErrorMessage = "El numero máximo de caracteres es de 100")]
         public string Nombre { get; set; }
 
     }
