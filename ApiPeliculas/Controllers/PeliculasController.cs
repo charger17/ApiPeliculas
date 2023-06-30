@@ -176,7 +176,6 @@ namespace ApiPeliculas.Controllers
             }
             catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error recuperando datos.");
             }
         }
