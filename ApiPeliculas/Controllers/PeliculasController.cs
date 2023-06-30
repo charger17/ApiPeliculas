@@ -113,7 +113,29 @@ namespace ApiPeliculas.Controllers
             }
 
             return NoContent();
+        }
 
+        [HttpDelete("{peliculaId:int}", Name = "BorrarPelicula")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult BorrarPelicula(int peliculaId)
+        {
+            if (!_pelRepo.ExistePelicula(peliculaId))
+            {
+                return NotFound();
+            }
+
+            var pelicula = _pelRepo.GetPelicula(peliculaId);
+
+            if (!_pelRepo.BorrarPelicula(pelicula))
+            {
+                ModelState.AddModelError("ErrorEliminacion", "La pelicula no pudo ser Eliminada.");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
         }
     }
 }
