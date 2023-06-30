@@ -137,5 +137,25 @@ namespace ApiPeliculas.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("GetPeliculasEnCategoria/{categoriaId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetPeliculasEnCategoria(int categoriaId)
+        {
+            var listaPeliculas = _pelRepo.GetPeliculasEnCategoria(categoriaId);
+
+            if (listaPeliculas is null)
+            {
+                return NotFound();
+            }
+
+            var listaPeliculasDto = new List<PeliculaDto>();
+
+            listaPeliculasDto = _mapper.Map<List<PeliculaDto>>(listaPeliculas);
+
+            return Ok(listaPeliculasDto);
+        }
     }
 }
