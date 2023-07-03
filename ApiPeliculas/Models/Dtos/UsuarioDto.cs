@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ApiPeliculas.Models
+﻿namespace ApiPeliculas.Models.Dtos
 {
-    public class Usuario
+    public class UsuarioDto
     {
-        [Key]
         public int Id { get; set; }
 
         public string NombreUsuario { get; set; }
