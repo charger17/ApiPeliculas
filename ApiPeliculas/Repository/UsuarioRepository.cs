@@ -47,20 +47,49 @@ namespace ApiPeliculas.Repository
             return usuarioBd is null ? true : false;
         }
 
-        public async Task<Usuario> Registro(UsuarioRegistroDto usuarioRegistroDto)
+        public async Task<UsuarioDatosDto> Registro(UsuarioRegistroDto usuarioRegistroDto)
         {
-            var passwordEncriptado = obtenerMD5(usuarioRegistroDto.Password);
 
-            Usuario usuario = new Usuario();
+            AppUsuario usuario = new AppUsuario()
+            {
+                UserName = usuarioRegistroDto.NombreUsuario,
+                Email = usuarioRegistroDto.NombreUsuario,
+                NormalizedEmail = usuarioRegistroDto.NombreUsuario.ToUpper(),
+                Nombre = usuarioRegistroDto.Nombre
+            };
 
-            usuario = _mapper.Map<Usuario>(usuarioRegistroDto);
-            usuario.Password = passwordEncriptado;
+            var result = await _userManager.CreateAsync(usuario, usuarioRegistroDto.Password);
 
-            await _bd.Usuarios.AddAsync(usuario);
-            await _bd.SaveChangesAsync();
+            if (result.Succeeded)
+            {
+                //Solo la primera vez y es para crear los roles
+                if (!_roleManager.RoleExistsAsync("admin").GetAwaiter().GetResult())
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("admin"));
+                    await _roleManager.CreateAsync(new IdentityRole("registrar"));
+                }
 
-            usuario.Password = passwordEncriptado;
-            return usuario;
+                await _userManager.AddToRoleAsync(usuario, "admin");
+                var usuarioRetornado = await _bd.AppUsuarios.FirstOrDefaultAsync(u => u.UserName.Equals(usuarioRegistroDto.NombreUsuario));
+
+                ////opcion 1
+                //return new UsuarioDatosDto()
+                //{
+                //    Id = usuarioRetornado.Id,
+                //    UserName = usuarioRetornado.UserName,
+                //    Nombre = usuarioRetornado.Nombre,
+                //};
+
+                return _mapper.Map<UsuarioDatosDto>(usuarioRetornado);
+            }
+
+            //await _bd.Usuarios.AddAsync(usuario);
+            //await _bd.SaveChangesAsync();
+
+            //usuario.Password = passwordEncriptado;
+            //return usuario;
+
+            return new UsuarioDatosDto();
         }
 
         public async Task<UsuarioLoginRespuestaDto> Login(UsuarioLoginDto usuarioLoginDto)
@@ -95,7 +124,7 @@ namespace ApiPeliculas.Repository
                     new Claim(ClaimTypes.Role, roles.FirstOrDefault())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new (new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = manejadorToken.CreateToken(tokenDescriptor);
