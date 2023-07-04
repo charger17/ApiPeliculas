@@ -2,7 +2,10 @@ using ApiPeliculas.Data;
 using ApiPeliculas.PeliculasMapper;
 using ApiPeliculas.Repository;
 using ApiPeliculas.Repository.IRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,27 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 //add mapper
 builder.Services.AddAutoMapper(typeof(PeliculasMapper));
+
+//Se configura autenticación
+var key = builder.Configuration.GetValue<string>("ApiSettings:Secreta");
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+})
+.AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+    };
+});
 
 //add dependency injection
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
@@ -55,6 +79,7 @@ app.UseHttpsRedirection();
 
 //soporte para cors
 app.UseCors("PolicyCors");
+app.UseAuthentication();
 
 app.UseAuthorization();
 
