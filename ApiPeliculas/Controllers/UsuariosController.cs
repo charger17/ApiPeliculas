@@ -2,8 +2,10 @@
 using ApiPeliculas.Models.Dtos;
 using ApiPeliculas.Repository.IRepository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using System.Net;
 
 namespace ApiPeliculas.Controllers
@@ -23,8 +25,10 @@ namespace ApiPeliculas.Controllers
             this._respuestaApi = new ResponseAPI();
         }
 
+        [Authorize(Roles = "admin")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult GetUsuarios()
         {
             var listaUsuarios = _userRepo.GetUsuarios();
@@ -36,10 +40,12 @@ namespace ApiPeliculas.Controllers
             return Ok(listaUsuariosDto);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpGet("{usuarioId:int}", Name = "GetUsuario")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult GetUsuario(int usuarioId)
         {
             var itemUsuario = _userRepo.GetUsuario(usuarioId);
@@ -54,6 +60,7 @@ namespace ApiPeliculas.Controllers
             return Ok(itemUsuarioDto);
         }
 
+        [AllowAnonymous]
         [HttpPost("Registro")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UsuarioDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -84,6 +91,7 @@ namespace ApiPeliculas.Controllers
             return Ok(_respuestaApi);
         }
 
+        [AllowAnonymous]
         [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UsuarioDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
