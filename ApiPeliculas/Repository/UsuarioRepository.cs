@@ -9,7 +9,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using XSystem.Security.Cryptography;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ApiPeliculas.Repository
 {
