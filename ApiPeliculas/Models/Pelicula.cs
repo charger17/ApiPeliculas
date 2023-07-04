@@ -11,7 +11,7 @@ namespace ApiPeliculas.Models
 
         public string Nombre { get; set; }
 
-        public string RutaImagen { get; set; }
+        public byte[] RutaImagen { get; set; }
 
         public string Descripcion { get; set; }
 
