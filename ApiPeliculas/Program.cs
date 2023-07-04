@@ -53,6 +53,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//soporte para cors
+app.UseCors("PolicyCors");
+
 app.UseAuthorization();
 
 app.MapControllers();
